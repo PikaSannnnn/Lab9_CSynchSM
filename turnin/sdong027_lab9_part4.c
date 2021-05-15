@@ -3,7 +3,8 @@
  *	Lab Section:
  *	Assignment: Lab #9  Exercise #4
  *	Exercise Description: [optional - include for your own benefit]
- *
+ *	Link: https://www.youtube.com/watch?v=fAzBF6fuWWU
+ * 
  *	I acknowledge all content contained herein, excluding template or example
  *	code, is my own original work.
  */
@@ -15,7 +16,7 @@
 
 const int led3Ticks = (300);
 const int blinkTicks = (1000);
-int spkrTicks = 1;
+int spkrTicks = 2;
 
 volatile unsigned char TimerFlag = 0;
 unsigned long _avr_timer_M = 1;
