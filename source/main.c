@@ -43,10 +43,13 @@ ISR(TIMER1_COMPA_vect) {
 	}
 }
 
-enum ThreeLEDs {ONE, TWO, THREE} LED3_STATES = -1;	// initialize to run default case (start/rst case)
+enum ThreeLEDs {LEDSTART, ONE, TWO, THREE} LED3_STATES;
 unsigned char ThreeLEDsSM() {
 	unsigned char threeLEDs = 0x00;
 	switch(LED3_STATES) {
+		case LEDSTART:
+			LED3_STATES = ONE;
+			break;
 		case ONE:
 			LED3_STATES = TWO;
 			break;
@@ -63,24 +66,30 @@ unsigned char ThreeLEDsSM() {
 	}
 
 	switch(LED3_STATES) {
+		case LEDSTART:
+			// NOTHING
+			break;
 		case ONE:
-			threeLEDs = (threeLEDs & 0x00) | 0x01;
+			threeLEDs = 0x01;
 			break;
 		case TWO:
-			threeLEDs = (threeLEDs & 0x00) | 0x02;
+			threeLEDs = 0x02;
 			break;
 		case THREE:
-			threeLEDs = (threeLEDs & 0x00) | 0x04;
+			threeLEDs = 0x04;
 			break;
 	}
 
 	return threeLEDs;
 }
 
-enum BlinkingLEDs {OFF, ON} BLINK_STATES = -1;	// initialize to run default case (start/rst case)
+enum BlinkingLEDs {BLINKSTART, OFF, ON} BLINK_STATES;
 unsigned char BlinkingLEDSM() {
 	unsigned char blinkingLED = 0x00;
 	switch(BLINK_STATES) {
+		case BLINKSTART:
+			BLINK_STATES = OFF;
+			break;
 		case OFF:
 			BLINK_STATES = ON;
 			break;
@@ -94,6 +103,9 @@ unsigned char BlinkingLEDSM() {
 	}
 
 	switch(BLINK_STATES) {
+		case BLINKSTART:
+			// NOTHING
+			break;
 		case OFF:
 			blinkingLED = 0x00;
 			break;
@@ -116,6 +128,8 @@ int main(void) {
 	DDRB = 0xFF; PORTB = 0x00;
 	unsigned char threeLEDs = 0x00;
 	unsigned char blinkLED = 0x00;
+	LED3_STATES = LEDSTART;
+	BLINK_STATES = BLINKSTART;
 
 	/* Insert your solution below */
 	while (1) {
