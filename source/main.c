@@ -1,7 +1,7 @@
 /*	Author: sdong027
  *  Partner(s) Name: 
  *	Lab Section:
- *	Assignment: Lab #9  Exercise #2
+ *	Assignment: Lab #9  Exercise #3
  *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
@@ -15,6 +15,7 @@
 
 const int led3Ticks = (300);
 const int blinkTicks = (1000);
+const int spkrTicks = (2);
 
 volatile unsigned char TimerFlag = 0;
 unsigned long _avr_timer_M = 1;
@@ -56,25 +57,25 @@ unsigned char ThreeLEDsSM() {
 			i = 0;
 			break;
 		case ONE:
+			i++;
 			if (i >= led3Ticks) {
 				LED3_STATES = TWO;
 				i = 0;
 			}
-			else { i++; }
 			break;
 		case TWO:
+			i++;
 			if (i >= led3Ticks) {
 				LED3_STATES = THREE;
 				i = 0;
 			}
-			else { i++; }
 			break;
 		case THREE:
+			i++;
 			if (i >= led3Ticks) {
 				LED3_STATES = ONE;
 				i = 0;
 			}
-			else { i++; }
 			break;
 		default:
 			threeLEDs = 0x00;
@@ -111,18 +112,18 @@ unsigned char BlinkingLEDSM() {
 			i = 0;
 			break;
 		case OFF:
+			i++;
 			if (i >= blinkTicks) {
 				BLINK_STATES = ON;
 				i = 0;
 			}
-			else { i++; }
 			break;
 		case ON:
+			i++;
 			if (i >= blinkTicks) {
 				BLINK_STATES = OFF;
 				i = 0;
 			}
-			else { i++; }
 			break;
 		default:
 			blinkingLED = 0x00;
@@ -145,8 +146,58 @@ unsigned char BlinkingLEDSM() {
 
 	return blinkingLED;
 }
-void CombineLEDsSM(unsigned char led3, unsigned char blinkLED) {
-	PORTB = 0x00 | (led3 | blinkLED);	
+
+enum Speaker {SPKRSTART, STOP, PLAY} SPKR_STATES;
+unsigned char SpkrSM() {
+	unsigned char spkr;
+	static int i;
+	switch(SPKR_STATES) {
+		case SPKRSTART:
+			SPKR_STATES = PLAY;
+			i = 0;
+			break;
+		case STOP:
+			i++;
+			if (i >= spkrTicks) {
+				SPKR_STATES = PLAY;
+				i = 0;
+			}
+			break;
+		case PLAY:
+			i++;
+			if (i >= spkrTicks) {
+				SPKR_STATES = STOP;
+				i = 0;
+			}
+			break;
+		default:
+			spkr = 0x00;
+			i = 0;
+			SPKR_STATES = STOP;
+			break;
+	}
+
+	switch(SPKR_STATES) {
+		case SPKRSTART:
+			// nothing
+			break;
+		case STOP:
+			spkr = 0x10;
+			break;
+		case PLAY:
+			spkr = 0x00;
+			break;
+	}
+
+	return spkr;
+}
+void CombineLEDsSM(unsigned char input, unsigned char led3, unsigned char blinkLED, unsigned char spkr) {
+	unsigned char tmpB = 0x00 | (led3 | blinkLED);
+	if (input >> 2) {
+		tmpB = (tmpB | spkr);
+	}
+
+	PORTB = tmpB;		
 } 
 
 int main(void) {
@@ -154,17 +205,27 @@ int main(void) {
 	TimerSet(1);	// (Do not tick the timer at the GCD of the tasks)
 	TimerOn();
 
+	DDRA = 0x00; PORTA = 0xFF;
 	DDRB = 0xFF; PORTB = 0x00;
+
+	unsigned char input = 0x00;
 	unsigned char threeLEDs = 0x00;
 	unsigned char blinkLED = 0x00;
+	unsigned char spkr = 0x00;
+
 	LED3_STATES = LEDSTART;
 	BLINK_STATES = BLINKSTART;
+	SPKR_STATES = SPKRSTART;
 
 	/* Insert your solution below */
 	while (1) {
+		input = ~PINA & 0x07;	// gets A0 - A2
 		threeLEDs = ThreeLEDsSM();
 		blinkLED = BlinkingLEDSM();
-		CombineLEDsSM(threeLEDs, blinkLED);
+		spkr = SpkrSM();
+
+		CombineLEDsSM(input, threeLEDs, blinkLED, spkr);
+
 		while (!TimerFlag);
 		TimerFlag = 0;
 	}

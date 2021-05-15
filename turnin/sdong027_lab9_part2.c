@@ -56,25 +56,25 @@ unsigned char ThreeLEDsSM() {
 			i = 0;
 			break;
 		case ONE:
+			i++;
 			if (i >= led3Ticks) {
 				LED3_STATES = TWO;
 				i = 0;
 			}
-			else { i++; }
 			break;
 		case TWO:
+			i++;
 			if (i >= led3Ticks) {
 				LED3_STATES = THREE;
 				i = 0;
 			}
-			else { i++; }
 			break;
 		case THREE:
+			i++;
 			if (i >= led3Ticks) {
 				LED3_STATES = ONE;
 				i = 0;
 			}
-			else { i++; }
 			break;
 		default:
 			threeLEDs = 0x00;
@@ -111,18 +111,18 @@ unsigned char BlinkingLEDSM() {
 			i = 0;
 			break;
 		case OFF:
+			i++;
 			if (i >= blinkTicks) {
 				BLINK_STATES = ON;
 				i = 0;
 			}
-			else { i++; }
 			break;
 		case ON:
+			i++;
 			if (i >= blinkTicks) {
 				BLINK_STATES = OFF;
 				i = 0;
 			}
-			else { i++; }
 			break;
 		default:
 			blinkingLED = 0x00;
